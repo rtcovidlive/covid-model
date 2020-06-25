@@ -1,4 +1,4 @@
-pymc3
+pymc3 >=3.9.2
 pandas
 jupyterlab
 numpy
