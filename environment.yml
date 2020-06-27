@@ -1,0 +1,15 @@
+name: rtlive
+channels:
+  - conda-forge
+dependencies:
+  - pymc3
+  - pandas
+  - jupyterlab
+  - numpy
+  - scipy
+  - mkl
+  - conda-build
+  - mkl-service
+  - boto3
+  - paramiko
+  - s3fs
