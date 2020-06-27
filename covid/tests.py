@@ -38,7 +38,7 @@ class TestGenerative:
         )
         model.build()
         model.sample(
-            cores=1, chains=2, tune=50, draws=70
+            cores=1, chains=2, tune=5, draws=7
         )
         assert model.trace is not None
         idata = model.inference_data
