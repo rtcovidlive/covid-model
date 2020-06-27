@@ -12,9 +12,9 @@ jobs:
     - uses: actions/checkout@v2
     - uses: goanpeca/setup-miniconda@v1
       with:
-        auto-update-conda: true
+        activate-environment: testenv
         python-version: ${{ matrix.python-version }}
-        auto-activate-base: true
+    - shell: bash -l {0}
     - name: Install dependencies
       run: |
         conda install -c conda-forge --file requirements.txt
