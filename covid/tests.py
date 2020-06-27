@@ -13,5 +13,5 @@ class TestDataUS:
 
     def test_process(self):
         df_raw = covid.data.get_raw_covidtracking_data()
-        df_processed = process_covidtracking_data(df_raw, pandas.Timestamp('2020-06-25'))
+        df_processed = covid.data.process_covidtracking_data(df_raw, pandas.Timestamp('2020-06-25'))
         assert isinstance(df_processed, pandas.DataFrame)
