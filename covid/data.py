@@ -50,6 +50,12 @@ def process_covidtracking_data(data: pd.DataFrame, run_date: pd.Timestamp):
     # Huge outlier in CA causing sampling issues.
     data.loc[idx["CA", pd.Timestamp("2020-04-22")], :] = 0
 
+    # Huge outlier in CA causing sampling issues.
+    # TODO: generally should handle when # tests == # positives and that
+    # is not an indication of positive rate.
+    data.loc[idx["SC", pd.Timestamp("2020-06-26")], :] = 0
+    data.loc[idx["OR", pd.Timestamp("2020-06-26")], :] = 0
+
     # A bunch of incorrect values for WA data so nulling them out.
     data.loc[idx["WA", pd.Timestamp("2020-06-05") : pd.Timestamp("2020-06-07")], :] = 0
     data.loc[idx["WA", pd.Timestamp("2020-06-20") : pd.Timestamp("2020-06-21")], :] = 0
