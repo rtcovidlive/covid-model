@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.7, 3.8]
+        python-version: [3.7]
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
@@ -30,8 +30,8 @@ jobs:
         flake8 . --count --exit-zero --statistics
     - name: Test with pytest
       run: |
-        pytest --cov=./covid --cov-report term-missing covid/
+        pytest --cov=./covid --cov-report term-missing covid/tests.py
     - name: Run dedicated coverage step
-      if: matrix.python-version == 3.8
+      if: matrix.python-version == 3.7
       run: |
-        pytest --cov=./covid --cov-report xml --cov-report term-missing covid/
+        pytest --cov=./covid --cov-report xml --cov-report term-missing covid/tests.py
