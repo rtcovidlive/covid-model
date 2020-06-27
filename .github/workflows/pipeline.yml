@@ -1,0 +1,37 @@
+name: pipeline
+
+on: [push, pull_request]
+
+jobs:
+  test-job:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.7, 3.8]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+    - uses: goanpeca/setup-miniconda@v1
+        with:
+          auto-update-conda: true
+          python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        conda install -c conda-forge --file requirements.txt
+        pip install flake8 pytest pytest-cov codecov wheel
+    - name: Lint with flake8
+      run: |
+        # stop the build if there are Python syntax errors or undefined names
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        # exit-zero treats all errors as warnings
+        flake8 . --count --exit-zero --statistics
+    - name: Test with pytest
+      run: |
+        pytest --cov=./covid-model --cov-report term-missing covid-model/
+    - name: Run dedicated coverage step
+      if: matrix.python-version == 3.8
+      run: |
+        pytest --cov=./covid-model --cov-report xml --cov-report term-missing covid-model/
