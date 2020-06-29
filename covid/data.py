@@ -54,7 +54,10 @@ def process_covidtracking_data(data: pd.DataFrame, run_date: pd.Timestamp):
     # TODO: generally should handle when # tests == # positives and that
     # is not an indication of positive rate.
     data.loc[idx["SC", pd.Timestamp("2020-06-26")], :] = 0
-    data.loc[idx["OR", pd.Timestamp("2020-06-26")], :] = 0
+
+    # Two days of no new data then lumped sum on third day with lack of new total tests
+    data.loc[idx["OR", pd.Timestamp("2020-06-26") : pd.Timestamp("2020-06-28")], 'positive'] = 174
+    data.loc[idx["OR", pd.Timestamp("2020-06-26") : pd.Timestamp("2020-06-28")], 'total'] = 3296
 
     # A bunch of incorrect values for WA data so nulling them out.
     data.loc[idx["WA", pd.Timestamp("2020-06-05") : pd.Timestamp("2020-06-07")], :] = 0
