@@ -3,6 +3,7 @@ import pandas
 import pytest
 
 import arviz
+import pymc3
 
 import covid.data
 import covid.models.generative
@@ -27,8 +28,9 @@ class TestGenerative:
             region='NY',
             observed=df_processed.xs('NY')
         )
-        model.build()
-        assert "date" in model.coords
+        pmodel = model.build()
+        assert isinstance(pmodel, pymc3.Model)
+        assert "date" in pmodel.coords
 
     def test_sample_and_idata(self):
         df_raw = covid.data.get_raw_covidtracking_data()
