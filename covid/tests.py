@@ -28,6 +28,7 @@ class TestGenerative:
             observed=df_processed.xs('NY')
         )
         model.build()
+        assert "date" in model.coords
 
     def test_sample_and_idata(self):
         df_raw = covid.data.get_raw_covidtracking_data()
