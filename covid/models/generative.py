@@ -51,16 +51,12 @@ class GenerativeModel:
         """ Returns an Arviz InferenceData object """
         assert self.trace, "Must run sample() first!"
 
-        coords, dimensions = self._get_coords_and_dimensions()
-
         with self.model:
             posterior_predictive = pm.sample_posterior_predictive(self.trace)
 
         _inference_data = az.from_pymc3(
             trace=self.trace,
             posterior_predictive=posterior_predictive,
-            coords=coords,
-            dims=dimensions,
         )
         _inference_data.posterior.attrs["model_version"] = self.version
 
@@ -79,24 +75,6 @@ class GenerativeModel:
             them on the same scale. """
         scale_factor = self.observed.positive.mean() / np.mean(data)
         return scale_factor * data
-
-    def _get_coords_and_dimensions(self):
-        """ Returns coordinates and dimensions when converting a trace to an
-            Arviz InferenceData object. """
-        coordinates = {
-            "date": self.observed.index.values,
-        }
-        dimensions = {
-            "r_t": ["date"],
-            "log_r_t": ["date"],
-            "infections": ["date"],
-            "test_adjusted_positive": ["date"],
-            "positive": ["date"],
-            "tests": ["date"],
-            "exposure": ["date"],
-            "observed_positive": ["date"],
-        }
-        return coordinates, dimensions
 
     def _get_generation_time_interval(self):
         """ Create a discrete P(Generation Interval)
@@ -140,12 +118,20 @@ class GenerativeModel:
         convolution_ready_gt = self._get_convolution_ready_gt(len_observed)
         x = np.arange(len_observed)[:, None]
 
-        with pm.Model() as self.model:
+        coords = {
+            "date": self.observed.index.values,
+            "nonzero_date": self.observed.index.values[self.observed.total.gt(0)],
+        }
+        with pm.Model(coords=coords) as self.model:
 
             # Let log_r_t walk randomly with a fixed prior of ~0.035. Think
             # of this number as how quickly r_t can react.
-            log_r_t = pm.GaussianRandomWalk("log_r_t", sigma=0.035, shape=len_observed)
-            r_t = pm.Deterministic("r_t", pm.math.exp(log_r_t))
+            log_r_t = pm.GaussianRandomWalk(
+                "log_r_t",
+                sigma=0.035,
+                dims=["date"]
+            )
+            r_t = pm.Deterministic("r_t", pm.math.exp(log_r_t), dims=["date"])
 
             # For a given seed population and R_t curve, we calculate the
             # implied infection curve by simulating an outbreak. While this may
@@ -162,7 +148,7 @@ class GenerativeModel:
                 non_sequences=r_t,
                 n_steps=len_observed - 1,
             )
-            infections = pm.Deterministic("infections", outputs[-1])
+            infections = pm.Deterministic("infections", outputs[-1], dims=["date"])
 
             # Convolve infections to confirmed positive reports based on a known
             # p_delay distribution. See patients.py for details on how we calculate
@@ -174,32 +160,38 @@ class GenerativeModel:
                     tt.reshape(p_delay, (1, len(p_delay))),
                     border_mode="full",
                 )[0, :len_observed],
+                dims=["date"]
             )
 
             # Picking an exposure with a prior that exposure never goes below
             # 0.1 * max_tests. The 0.1 only affects early values of Rt when
             # testing was minimal or when data errors cause underreporting
             # of tests.
-            tests = pm.Data("tests", self.observed.total.values)
+            tests = pm.Data("tests", self.observed.total.values, dims=["date"])
             exposure = pm.Deterministic(
-                "exposure", pm.math.clip(tests, self.observed.total.max() * 0.1, 1e9)
+                "exposure",
+                pm.math.clip(tests, self.observed.total.max() * 0.1, 1e9),
+                dims=["date"]
             )
 
             # Test-volume adjust reported cases based on an assumed exposure
             # Note: this is similar to the exposure parameter in a Poisson
             # regression.
-            positive = pm.Deterministic("positive", exposure * test_adjusted_positive)
+            positive = pm.Deterministic(
+                "positive", exposure * test_adjusted_positive,
+                dims=["date"]
+            )
 
             # Save data as part of trace so we can access in inference_data
-            observed_positive = pm.Data(
-                "observed_positive", self.observed.positive.values
-            )
+            observed_positive = pm.Data("observed_positive", self.observed.positive.values, dims=["date"])
+            nonzero_observed_positive = pm.Data("nonzero_observed_positive", self.observed.positive[nonzero_days.values].values, dims=["nonzero_date"])
 
             positive_nonzero = pm.NegativeBinomial(
                 "nonzero_positive",
                 mu=positive[nonzero_days.values],
                 alpha=pm.Gamma("alpha", mu=6, sigma=1),
-                observed=self.observed.positive[nonzero_days.values].values,
+                observed=nonzero_observed_positive,
+                dims=["nonzero_date"]
             )
 
         return self.model
