@@ -80,7 +80,8 @@ def process_covidtracking_data(data: pd.DataFrame, run_date: pd.Timestamp):
         :,
     ] = 0
 
-    # the right bound of the slice has a -1 day, because the diff operation adds a day to the end
+    # At the real time of `run_date`, the data for `run_date` is not yet available!
+    # Cutting it away is important for backtesting!
     return data.loc[idx[:, :(run_date - pd.DateOffset(1))], ["positive", "total"]]
 
 
