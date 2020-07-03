@@ -19,7 +19,7 @@ def process_covidtracking_data(data: pd.DataFrame, run_date: pd.Timestamp):
     data = data.rename(columns={"state": "region"})
     data["date"] = pd.to_datetime(data["date"], format="%Y%m%d")
     data = data.set_index(["region", "date"]).sort_index()
-    data = data.loc[idx[:, :run_date], ["positive", "total"]]
+    data = data[["positive", "total"]]
 
     # Too little data or unreliable reporting in the data source.
     data = data.drop(["MP", "GU", "AS", "PR", "VI"])
@@ -34,7 +34,7 @@ def process_covidtracking_data(data: pd.DataFrame, run_date: pd.Timestamp):
     data.loc[idx["LA", pd.Timestamp("2020-06-19") :], :] += 1666
 
     # Now work with daily counts
-    data = data.diff().dropna().clip(0, None)
+    data = data.diff().dropna().clip(0, None).sort_index()
 
     # Michigan missed 6/18 totals and lumped them into 6/19 so we've
     # divided the totals in two and equally distributed to both days.
@@ -80,7 +80,8 @@ def process_covidtracking_data(data: pd.DataFrame, run_date: pd.Timestamp):
         :,
     ] = 0
 
-    return data
+    # the right bound of the slice has a -1 day, because the diff operation adds a day to the end
+    return data.loc[idx[:, :(run_date - pd.DateOffset(1))], ["positive", "total"]]
 
 
 def get_and_process_covidtracking_data(run_date: pd.Timestamp):
