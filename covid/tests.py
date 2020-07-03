@@ -16,8 +16,12 @@ class TestDataUS:
 
     def test_process(self):
         df_raw = covid.data.get_raw_covidtracking_data()
-        df_processed = covid.data.process_covidtracking_data(df_raw, pandas.Timestamp('2020-06-25'))
+        run_date = pandas.Timestamp('2020-06-25')
+        df_processed = covid.data.process_covidtracking_data(df_raw, run_date)
         assert isinstance(df_processed, pandas.DataFrame)
+        # the last entry in the data is the day before `run_date`!
+        assert df_processed.xs('NY').index[-1] < run_date
+        assert df_processed.xs('NY').index[-1] == (run_date - pandas.DateOffset(1))
 
 
 class TestGenerative:
