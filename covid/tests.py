@@ -22,6 +22,8 @@ class TestDataUS:
         # the last entry in the data is the day before `run_date`!
         assert df_processed.xs('NY').index[-1] < run_date
         assert df_processed.xs('NY').index[-1] == (run_date - pandas.DateOffset(1))
+        assert "positive" in df_processed.columns
+        assert "total" in df_processed.columns
 
 
 class TestGenerative:
@@ -34,10 +36,12 @@ class TestGenerative:
         )
         pmodel = model.build()
         assert isinstance(pmodel, pymc3.Model)
-        # TODO: enable after PR #1 was merged:
-        # assert "date" in pmodel.coords
-        # TODO: make more asserts about dates & coords being part of the model
-        # TODO: assert presence of key random variables
+        # important coordinates
+        assert "date" in pmodel.coords
+        assert "nonzero_date" in pmodel.coords
+        # important random variables
+        for varname in ['r_t', 'seed', 'infections', 'test_adjusted_positive', 'exposure', 'positive', 'alpha']:
+            assert varname in pmodel.named_vars
 
     def test_sample_and_idata(self):
         df_raw = covid.data.get_raw_covidtracking_data()
@@ -53,6 +57,19 @@ class TestGenerative:
         assert model.trace is not None
         idata = model.inference_data
         assert isinstance(idata, arviz.InferenceData)
+        # check posterior
         assert idata.posterior.attrs["model_version"] == model.version
+        assert "chain" in idata.posterior.coords
+        assert "draw" in idata.posterior.coords
         assert "date" in idata.posterior.coords
-        # TODO: assert all essentials coords & variables (peak in PR #1)
+        for varname in ["r_t", "seed", "infections", "test_adjusted_positive", "exposure", "positive", "alpha"]:
+            assert varname in idata.posterior, f'Missing {varname} from posterior group'
+        # check observed_data
+        assert "nonzero_date" in idata.observed_data.coords
+        for varname in ["nonzero_positive"]:
+            assert varname in idata.observed_data, f'Missing {varname} from constant_data group'
+        # check constant_data
+        assert "date" in idata.constant_data.coords
+        assert "nonzero_date" in idata.constant_data.coords
+        for varname in ["exposure", "tests", "observed_positive", "nonzero_observed_positive"]:
+            assert varname in idata.constant_data, f'Missing {varname} from constant_data group'
