@@ -19,11 +19,30 @@ class TestDataUS:
         run_date = pandas.Timestamp('2020-06-25')
         df_processed = covid.data.process_covidtracking_data(df_raw, run_date)
         assert isinstance(df_processed, pandas.DataFrame)
+        assert df_processed.index.names == ("region", "date")
         # the last entry in the data is the day before `run_date`!
         assert df_processed.xs('NY').index[-1] < run_date
         assert df_processed.xs('NY').index[-1] == (run_date - pandas.DateOffset(1))
         assert "positive" in df_processed.columns
         assert "total" in df_processed.columns
+
+
+class TestDataGeneralized:
+    def test_get_unsupported(self):
+        with pytest.raises(KeyError):
+            covid.data.get_data(country="not_a_country", run_date=pandas.Timestamp("2020-06-20"))
+
+    def test_get_us(self):
+        import covid.data_us
+        assert "us" in covid.data.LOADERS
+        run_date = pandas.Timestamp('2020-06-25')
+        result = covid.data.get_data("us", run_date)
+        assert isinstance(result, pandas.DataFrame)
+        assert result.index.names == ("region", "date")
+        assert result.xs('NY').index[-1] < run_date
+        assert result.xs('NY').index[-1] == (run_date - pandas.DateOffset(1))
+        assert "positive" in result.columns
+        assert "total" in result.columns
 
 
 class TestGenerative:
