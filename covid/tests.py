@@ -40,8 +40,9 @@ class TestGenerative:
         assert "date" in pmodel.coords
         assert "nonzero_date" in pmodel.coords
         # important random variables
-        for varname in ['r_t', 'seed', 'infections', 'test_adjusted_positive', 'exposure', 'positive', 'alpha']:
-            assert varname in pmodel.named_vars
+        expected_vars = set(['r_t', 'seed', 'infections', 'test_adjusted_positive', 'exposure', 'positive', 'alpha'])
+        missing_vars = expected_vars.difference(set(pmodel.named_vars.keys()))
+        assert not missing_vars, f'Missing variables: {missing_vars}'
 
     def test_sample_and_idata(self):
         df_raw = covid.data.get_raw_covidtracking_data()
@@ -62,14 +63,17 @@ class TestGenerative:
         assert "chain" in idata.posterior.coords
         assert "draw" in idata.posterior.coords
         assert "date" in idata.posterior.coords
-        for varname in ["r_t", "seed", "infections", "test_adjusted_positive", "exposure", "positive", "alpha"]:
-            assert varname in idata.posterior, f'Missing {varname} from posterior group'
+        expected_vars = set(["r_t", "seed", "infections", "test_adjusted_positive", "exposure", "positive", "alpha"])
+        missing_vars = expected_vars.difference(set(idata.posterior.keys()))
+        assert not missing_vars, f'Missing {missing_vars} from posterior group'
         # check observed_data
         assert "nonzero_date" in idata.observed_data.coords
-        for varname in ["nonzero_positive"]:
-            assert varname in idata.observed_data, f'Missing {varname} from constant_data group'
+        expected_vars = set(["nonzero_positive"])
+        missing_vars = expected_vars.difference(set(idata.observed_data.keys()))
+        assert not missing_vars, f'Missing {missing_vars} from observed_data group'
         # check constant_data
         assert "date" in idata.constant_data.coords
         assert "nonzero_date" in idata.constant_data.coords
-        for varname in ["exposure", "tests", "observed_positive", "nonzero_observed_positive"]:
-            assert varname in idata.constant_data, f'Missing {varname} from constant_data group'
+        expected_vars = set(["exposure", "tests", "observed_positive", "nonzero_observed_positive"])
+        missing_vars = expected_vars.difference(set(idata.constant_data.keys()))
+        assert not missing_vars, f'Missing {missing_vars} from constant_data group'
