@@ -22,6 +22,8 @@ class TestDataUS:
         # the last entry in the data is the day before `run_date`!
         assert df_processed.xs('NY').index[-1] < run_date
         assert df_processed.xs('NY').index[-1] == (run_date - pandas.DateOffset(1))
+        assert "positive" in df_processed.columns
+        assert "total" in df_processed.columns
 
 
 class TestGenerative:
@@ -34,10 +36,13 @@ class TestGenerative:
         )
         pmodel = model.build()
         assert isinstance(pmodel, pymc3.Model)
-        # TODO: enable after PR #1 was merged:
-        # assert "date" in pmodel.coords
-        # TODO: make more asserts about dates & coords being part of the model
-        # TODO: assert presence of key random variables
+        # important coordinates
+        assert "date" in pmodel.coords
+        assert "nonzero_date" in pmodel.coords
+        # important random variables
+        expected_vars = set(['r_t', 'seed', 'infections', 'test_adjusted_positive', 'exposure', 'positive', 'alpha'])
+        missing_vars = expected_vars.difference(set(pmodel.named_vars.keys()))
+        assert not missing_vars, f'Missing variables: {missing_vars}'
 
     def test_sample_and_idata(self):
         df_raw = covid.data.get_raw_covidtracking_data()
@@ -53,6 +58,22 @@ class TestGenerative:
         assert model.trace is not None
         idata = model.inference_data
         assert isinstance(idata, arviz.InferenceData)
+        # check posterior
         assert idata.posterior.attrs["model_version"] == model.version
+        assert "chain" in idata.posterior.coords
+        assert "draw" in idata.posterior.coords
         assert "date" in idata.posterior.coords
-        # TODO: assert all essentials coords & variables (peak in PR #1)
+        expected_vars = set(["r_t", "seed", "infections", "test_adjusted_positive", "exposure", "positive", "alpha"])
+        missing_vars = expected_vars.difference(set(idata.posterior.keys()))
+        assert not missing_vars, f'Missing {missing_vars} from posterior group'
+        # check observed_data
+        assert "nonzero_date" in idata.observed_data.coords
+        expected_vars = set(["nonzero_positive"])
+        missing_vars = expected_vars.difference(set(idata.observed_data.keys()))
+        assert not missing_vars, f'Missing {missing_vars} from observed_data group'
+        # check constant_data
+        assert "date" in idata.constant_data.coords
+        assert "nonzero_date" in idata.constant_data.coords
+        expected_vars = set(["exposure", "tests", "observed_positive", "nonzero_observed_positive"])
+        missing_vars = expected_vars.difference(set(idata.constant_data.keys()))
+        assert not missing_vars, f'Missing {missing_vars} from constant_data group'
