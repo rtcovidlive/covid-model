@@ -133,15 +133,18 @@ def predict_testcounts(
         .reset_index()
         .rename(columns={"date": "ds", "total": "y"})
     )
-    cap = numpy.max(testcounts) * 1
-    df_fit["floor"] = 0
-    df_fit["cap"] = cap
+
+    if prophet_kwargs["growth"] == "logistic":
+        cap = numpy.max(testcounts) * 1
+        df_fit["floor"] = 0
+        df_fit["cap"] = cap
     m.fit(df_fit)
 
     # predict for all dates in the input
     df_predict = testcounts.reset_index().rename(columns={"date": "ds"})
-    df_predict["floor"] = 0
-    df_predict["cap"] = cap
+    if prophet_kwargs["growth"] == "logistic":
+        df_predict["floor"] = 0
+        df_predict["cap"] = cap
     forecast = m.predict(df_predict)
 
     # make a series of the result that has the same index as the input
