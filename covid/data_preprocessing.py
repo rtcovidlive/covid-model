@@ -49,7 +49,7 @@ def predict_testcounts(
     country: str,
     region: str,
     keep_data: bool,
-    predict_after: typing.Optional[
+    ignore_before: typing.Optional[
         typing.Union[datetime.datetime, pandas.Timestamp, str]
     ] = None,
     **kwargs,
@@ -67,7 +67,7 @@ def predict_testcounts(
     keep_data : bool
         if True, existing entries are kept
         if False, existing entries are also predicted, resulting in a smoothed profile
-    predict_after : timestamp
+    ignore_before : timestamp
         all dates before this are ignored
         Use this argument to prevent an unrealistic upwards trend due to initial testing ramp-up
     **kwargs
@@ -86,16 +86,16 @@ def predict_testcounts(
     holidays : dict
         dictionary of the holidays that were used in the model
     """
-    if not predict_after:
-        predict_after = testcounts.index[0]
+    if not ignore_before:
+        ignore_before = testcounts.index[0]
 
-    mask_fit = testcounts.index > predict_after
+    mask_fit = testcounts.index >= ignore_before
     if keep_data:
         mask_predict = numpy.logical_and(
-            testcounts.index > predict_after, numpy.isnan(testcounts.values)
+            testcounts.index >= ignore_before, numpy.isnan(testcounts.values)
         )
     else:
-        mask_predict = testcounts.index > predict_after
+        mask_predict = testcounts.index >= ignore_before
 
     relevant_holidays = get_holidays(
         country,

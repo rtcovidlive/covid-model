@@ -162,7 +162,7 @@ class TestDataPreprocessing:
             region="HI",
             keep_data=keep_data,
             # don't predict the first 10 days
-            predict_after=df_region.index[10],
+            ignore_before=df_region.index[10],
         )
         assert isinstance(result, pandas.Series)
         assert isinstance(m, fbprophet.Prophet)
