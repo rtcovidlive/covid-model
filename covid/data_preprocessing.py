@@ -144,8 +144,8 @@ def predict_testcounts(
         # none, or only one region -> no distinction between national/regional holidays
         holiday_df = pandas.DataFrame(
             dict(
-                holiday="Holiday",
-                name=all_holidays.values(),
+                holiday="holiday",
+                name=list(all_holidays.values()),
                 ds=pandas.to_datetime(list(all_holidays.keys())),
             )
         )
@@ -159,6 +159,7 @@ def predict_testcounts(
         weekly_seasonality=True,
         yearly_seasonality=False,
         holidays=holiday_df,
+        mcmc_samples=300,
         # restrict number of potential changepoints:
         n_changepoints=int(numpy.ceil(days / 30)),
     )
