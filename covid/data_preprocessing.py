@@ -159,7 +159,7 @@ def predict_testcounts(
         weekly_seasonality=True,
         yearly_seasonality=False,
         holidays=holiday_df,
-        mcmc_samples=300,
+        mcmc_samples=500,
         # restrict number of potential changepoints:
         n_changepoints=int(numpy.ceil(days / 30)),
     )

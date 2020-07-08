@@ -166,6 +166,8 @@ class TestDataPreprocessing:
             country=country,
             region=region,
             keep_data=keep_data,
+            # disable mcmc for tests
+            mcmc_samples=0,
             # don't predict the first 10 days
             ignore_before=df_region.index[10],
         )
@@ -185,10 +187,10 @@ class TestDataPreprocessing:
             )
             # predictions should approximate the pattern
             numpy.testing.assert_allclose(
-                result.values[mask_predict], true_pattern[mask_predict], atol=10
+                result.values[mask_predict], true_pattern[mask_predict], atol=20
             )
         else:
             # everything after the 10th day should approximate the pattern
             numpy.testing.assert_allclose(
-                result.values[10:], true_pattern[10:], atol=10
+                result.values[10:], true_pattern[10:], atol=20
             )
