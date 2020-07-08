@@ -128,7 +128,8 @@ class TestGenerative:
 
 class TestDataPreprocessing:
     @pytest.mark.parametrize(
-        "country,region", [("US", "NY"), ("US", "CA"), ("US", "FL"), ("US", "OK"),]
+        "country,region",
+        [("US", "OK"), ("US", None), ("US", []), ("US", ["NY", "CA"]),],
     )
     def test_get_holidays(self, country, region):
         result = covid.data_preprocessing.get_holidays(country, region, years=[2020])
@@ -137,8 +138,12 @@ class TestDataPreprocessing:
         assert isinstance(tuple(result.keys())[0], datetime.date)
         assert isinstance(tuple(result.values())[0], str)
 
+    @pytest.mark.parametrize(
+        "country,region",
+        [("US", "OK"), ("US", None), ("US", []), ("US", ["NY", "CA"]),],
+    )
     @pytest.mark.parametrize("keep_data", [False, True])
-    def test_predict_testcounts(self, keep_data):
+    def test_predict_testcounts(self, keep_data, country, region):
         true_pattern = numpy.array([150, 150, 150, 300, 300, 10, 10] * 10)
         df_region = pandas.DataFrame(
             index=pandas.date_range(
@@ -158,8 +163,8 @@ class TestDataPreprocessing:
         # predict the missing last two weeks:
         result, m, forecast, holidays = covid.data_preprocessing.predict_testcounts(
             df_region.total,
-            country="US",
-            region="HI",
+            country=country,
+            region=region,
             keep_data=keep_data,
             # don't predict the first 10 days
             ignore_before=df_region.index[10],
