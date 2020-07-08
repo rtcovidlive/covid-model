@@ -131,15 +131,23 @@ def predict_testcounts(
 
         holiday_df = pandas.DataFrame(
             data=[
-                (date, "national" if date in national_holidays.keys() else "regional")
-                for date in all_holidays.keys()
+                (
+                    date,
+                    name,
+                    "national" if date in national_holidays.keys() else "regional",
+                )
+                for date, name in all_holidays.items()
             ],
-            columns=["ds", "holiday"],
+            columns=["ds", "name", "holiday"],
         )
     else:
         # none, or only one region -> no distinction between national/regional holidays
         holiday_df = pandas.DataFrame(
-            dict(holiday="Holiday", ds=pandas.to_datetime(list(all_holidays.keys())))
+            dict(
+                holiday="Holiday",
+                name=all_holidays.values(),
+                ds=pandas.to_datetime(list(all_holidays.keys())),
+            )
         )
 
     # Config settings of forecast model
