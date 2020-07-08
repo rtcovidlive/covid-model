@@ -188,7 +188,7 @@ def predict_testcounts(
     forecast = m.predict(df_predict)
 
     # make a series of the result that has the same index as the input
-    result = pandas.Series(index=testcounts.index, data=testcounts.copy().values)
+    result = pandas.Series(index=testcounts.index, data=testcounts.copy().values, name="testcount")
     result.loc[mask_predict] = numpy.clip(
         forecast.set_index("ds").yhat, 0, forecast.yhat.max()
     )
