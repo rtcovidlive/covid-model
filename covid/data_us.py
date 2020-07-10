@@ -64,6 +64,7 @@ def process_covidtracking_data(data: pd.DataFrame, run_date: pd.Timestamp):
 
     #https://twitter.com/OHdeptofhealth/status/1278768987292209154
     data.loc[idx["OH", pd.Timestamp("2020-07-01")], :] = 0
+    data.loc[idx["OH", pd.Timestamp("2020-07-09")], :] = 0
 
     # Nevada didn't report total tests this day
     data.loc[idx["NV", pd.Timestamp("2020-07-02")], :] = 0
@@ -71,6 +72,9 @@ def process_covidtracking_data(data: pd.DataFrame, run_date: pd.Timestamp):
     # A bunch of incorrect values for WA data so nulling them out.
     data.loc[idx["WA", pd.Timestamp("2020-06-05") : pd.Timestamp("2020-06-07")], :] = 0
     data.loc[idx["WA", pd.Timestamp("2020-06-20") : pd.Timestamp("2020-06-21")], :] = 0
+
+    # AL reported tests == positives
+    data.loc[idx["AL", pd.Timestamp("2020-07-09")], :] = 0
 
     # Outlier dates in PA
     data.loc[
