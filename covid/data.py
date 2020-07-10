@@ -1,6 +1,7 @@
 import typing
 import pandas as pd
 import arviz as az
+import numpy as np
 
 from . data_us import (
     get_and_process_covidtracking_data,
@@ -9,7 +10,7 @@ from . data_us import (
 )
 
 # Data loading functions for different countries may be registered here.
-# For US, the data loader is pre-registered. Additional countries may be 
+# For US, the data loader is pre-registered. Additional countries may be
 # registered upon import of third-party modules.
 # Data cleaning must be done by the data loader function!
 LOADERS:typing.Dict[str, typing.Callable[[pd.Timestamp], pd.DataFrame]] = {
