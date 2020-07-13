@@ -79,6 +79,9 @@ def process_covidtracking_data(data: pd.DataFrame, run_date: pd.Timestamp):
     # Low reported tests
     data.loc[idx["AR", pd.Timestamp("2020-07-10")], :] = 0
 
+    # Positives == tests
+    data.loc[idx["MS", pd.Timestamp("2020-07-12")], :] = 0
+
     # Outlier dates in PA
     data.loc[
         idx[
