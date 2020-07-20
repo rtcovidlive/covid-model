@@ -32,7 +32,12 @@ def process_covidtracking_data_il(data: pd.DataFrame, run_date: pd.Timestamp):
 1     2  2020-07-12     0     0           0                   0         0         שלילי              Yes   נקבה           Other
 2     3  2020-07-12     0     0           0                   0         0         חיובי               No    זכר           Other
 """
+    # Remove results which are not positive or negative
     data = data[data['corona_result'] != 'אחר']
+    # Keep only the tests that are not due to coming from abroad or known contact
+    # This will give a better estimate of the spread
+    data = data[data['test_indication'] == 'Other']
+    # Translate results from Hebrew (did you have to do that MOH?)
     data['corona_result'].replace({'שלילי' : False, 'חיובי': True}, inplace=True)
     data = data.rename(columns={"test_date": "date"})
     data["date"] = pd.to_datetime(data["date"], format="%Y-%m-%d")
