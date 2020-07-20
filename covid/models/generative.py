@@ -26,7 +26,7 @@ class GenerativeModel:
             on those days """
 
         first_index = observed.positive.ne(0).argmax()
-        observed = observed.iloc[first_index:]
+        observed = observed.loc[first_index:]
         new_index = pd.date_range(
             start=observed.index[0] - pd.Timedelta(days=buffer_days),
             end=observed.index[-1],
