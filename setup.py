@@ -18,7 +18,7 @@ from os.path import realpath, dirname, join
 from setuptools import setup, find_packages
 import re
 
-DISTNAME = "covid"
+DISTNAME = "rtlive"
 DESCRIPTION = "Model powering rt.live"
 AUTHOR = "Kevin Systrom, Thomas Vladeck"
 AUTHOR_EMAIL = "k@systrom.com"
@@ -29,7 +29,6 @@ classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.6",
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "License :: OSI Approved :: Apache Software License",
@@ -50,7 +49,7 @@ REQUIREMENTS_FILE = join(PROJECT_ROOT, "requirements.txt")
 with open(REQUIREMENTS_FILE) as f:
     install_reqs = f.read().splitlines()
 
-test_reqs = ["pytest", "pytest-cov"]
+test_reqs = ["pytest"]
 
 
 def get_version():
@@ -74,12 +73,10 @@ if __name__ == "__main__":
         license=LICENSE,
         url=URL,
         long_description=LONG_DESCRIPTION,
-        long_description_content_type="text/x-rst",
         packages=find_packages(),
         include_package_data=True,
         classifiers=classifiers,
-        python_requires=">=3.6",
+        python_requires=">=3.7",
         install_requires=install_reqs,
         tests_require=test_reqs,
-        test_suite="nose.collector",
     )
