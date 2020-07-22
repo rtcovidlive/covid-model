@@ -23,7 +23,7 @@ def get_raw_covidtracking_data_il():
     data = pd.concat(datafs)
     return(data)
 
-def process_covidtracking_data_il(data: pd.DataFrame, run_date: pd.Timestamp):
+def process_covidtracking_data_il(data: pd.DataFrame, run_date: pd.Timestamp, group):
     """ Processes raw COVIDTracking data to be in a form for the GenerativeModel.
         In many cases, we need to correct data errors or obvious outliers.
         Data looks like: 
@@ -36,7 +36,10 @@ def process_covidtracking_data_il(data: pd.DataFrame, run_date: pd.Timestamp):
     data = data[data['corona_result'] != 'אחר']
     # Keep only the tests that are not due to coming from abroad or known contact
     # This will give a better estimate of the spread
-    data = data[data['test_indication'] == 'Other']
+    if group:
+        data = data[data['test_indication'] == group]
+    else:
+        data = data[data['test_indication'] != "Abroad"]        
     # Translate results from Hebrew (did you have to do that MOH?)
     data['corona_result'].replace({'שלילי' : False, 'חיובי': True}, inplace=True)
     data = data.rename(columns={"test_date": "date"})
@@ -56,5 +59,15 @@ def process_covidtracking_data_il(data: pd.DataFrame, run_date: pd.Timestamp):
 def get_and_process_covidtracking_data_il(run_date: pd.Timestamp):
     """ Helper function for getting and processing COVIDTracking data at once """
     data = get_raw_covidtracking_data_il()
-    data = process_covidtracking_data_il(data, run_date)
+    data = process_covidtracking_data_il(data, run_date, None)
+    return (data)
+def get_and_process_covidtracking_data_il_other(run_date: pd.Timestamp):
+    """ Helper function for getting and processing COVIDTracking data at once """
+    data = get_raw_covidtracking_data_il()
+    data = process_covidtracking_data_il(data, run_date, "Other")
+    return (data)
+def get_and_process_covidtracking_data_il_contact(run_date: pd.Timestamp):
+    """ Helper function for getting and processing COVIDTracking data at once """
+    data = get_raw_covidtracking_data_il()
+    data = process_covidtracking_data_il(data, run_date, "Contact with confirmed")
     return (data)

@@ -10,6 +10,8 @@ from . data_us import (
 )
 from . data_il import (
     get_and_process_covidtracking_data_il,
+    get_and_process_covidtracking_data_il_other,
+    get_and_process_covidtracking_data_il_contact,
     get_raw_covidtracking_data_il,
     process_covidtracking_data_il,
 )
@@ -21,6 +23,9 @@ from . data_il import (
 LOADERS:typing.Dict[str, typing.Callable[[pd.Timestamp], pd.DataFrame]] = {
     'us': get_and_process_covidtracking_data,
     'il': get_and_process_covidtracking_data_il,
+    'il_other': get_and_process_covidtracking_data_il_other,
+    'il_contact': get_and_process_covidtracking_data_il_contact,
+
 }
 
 
