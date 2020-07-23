@@ -82,6 +82,10 @@ def process_covidtracking_data(data: pd.DataFrame, run_date: pd.Timestamp):
     # Positives == tests
     data.loc[idx["MS", pd.Timestamp("2020-07-12")], :] = 0
 
+    # Positive == Tests; lumpy reporting for CT
+    data.loc[idx["CT", pd.Timestamp("2020-07-17")], :] = 0
+    data.loc[idx["CT", pd.Timestamp("2020-07-21")], :] = 0
+
     # Outlier dates in PA
     data.loc[
         idx[
