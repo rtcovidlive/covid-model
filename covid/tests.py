@@ -6,23 +6,43 @@ import arviz
 import pymc3
 
 import covid.data
+import covid.data_us
+import covid.data_fr
 import covid.models.generative
 
 
 class TestDataUS:
     def test_get_raw(self):
-        df_raw = covid.data.get_raw_covidtracking_data()
+        df_raw = covid.data_us.get_raw_covidtracking_data()
         assert isinstance(df_raw, pandas.DataFrame)
 
     def test_process(self):
-        df_raw = covid.data.get_raw_covidtracking_data()
+        df_raw = covid.data_us.get_raw_covidtracking_data()
         run_date = pandas.Timestamp('2020-06-25')
-        df_processed = covid.data.process_covidtracking_data(df_raw, run_date)
+        df_processed = covid.data_us.process_covidtracking_data(df_raw, run_date)
         assert isinstance(df_processed, pandas.DataFrame)
         assert df_processed.index.names == ("region", "date")
         # the last entry in the data is the day before `run_date`!
         assert df_processed.xs('NY').index[-1] < run_date
         assert df_processed.xs('NY').index[-1] == (run_date - pandas.DateOffset(1))
+        assert "positive" in df_processed.columns
+        assert "total" in df_processed.columns
+
+class TestDataFR:
+    def test_get_raw(self):
+        df_raw = covid.data_fr.get_raw_covidtracking_data()
+        assert isinstance(df_raw, pandas.DataFrame)
+
+    def test_process(self):
+        df_raw = covid.data_fr.get_raw_covidtracking_data()
+        run_date = pandas.Timestamp('2020-06-25')
+        df_processed = covid.data_fr.process_covidtracking_data(df_raw, run_date)
+        assert isinstance(df_processed, pandas.DataFrame)
+        # In data_fr.py we use `dep` and not `region` field
+        assert df_processed.index.names == ("dep", "date")
+        # the last entry in the data is the day before `run_date`!
+        assert df_processed.xs('75').index[-1] < run_date
+        assert df_processed.xs('75').index[-1] == (run_date - pandas.DateOffset(1))
         assert "positive" in df_processed.columns
         assert "total" in df_processed.columns
 
@@ -47,8 +67,8 @@ class TestDataGeneralized:
 
 class TestGenerative:
     def test_build(self):
-        df_raw = covid.data.get_raw_covidtracking_data()
-        df_processed = covid.data.process_covidtracking_data(df_raw, pandas.Timestamp('2020-06-25'))
+        df_raw = covid.data_us.get_raw_covidtracking_data()
+        df_processed = covid.data_us.process_covidtracking_data(df_raw, pandas.Timestamp('2020-06-25'))
         model = covid.models.generative.GenerativeModel(
             region='NY',
             observed=df_processed.xs('NY')
@@ -64,8 +84,8 @@ class TestGenerative:
         assert not missing_vars, f'Missing variables: {missing_vars}'
 
     def test_sample_and_idata(self):
-        df_raw = covid.data.get_raw_covidtracking_data()
-        df_processed = covid.data.process_covidtracking_data(df_raw, pandas.Timestamp('2020-06-25'))
+        df_raw = covid.data_us.get_raw_covidtracking_data()
+        df_processed = covid.data_us.process_covidtracking_data(df_raw, pandas.Timestamp('2020-06-25'))
         model = covid.models.generative.GenerativeModel(
             region='NY',
             observed=df_processed.xs('NY')
