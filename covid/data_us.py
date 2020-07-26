@@ -48,6 +48,8 @@ def process_covidtracking_data(data: pd.DataFrame, run_date: pd.Timestamp):
 
     # Huge outlier in NJ causing sampling issues.
     data.loc[idx["NJ", pd.Timestamp("2020-05-11")], :] = 0
+    # Same tests and positives, nulling out
+    data.loc[idx["NJ", pd.Timestamp("2020-07-26")], :] = 0
 
     # Huge outlier in CA causing sampling issues.
     data.loc[idx["CA", pd.Timestamp("2020-04-22")], :] = 0
@@ -60,7 +62,6 @@ def process_covidtracking_data(data: pd.DataFrame, run_date: pd.Timestamp):
     # Two days of no new data then lumped sum on third day with lack of new total tests
     data.loc[idx["OR", pd.Timestamp("2020-06-26") : pd.Timestamp("2020-06-28")], 'positive'] = 174
     data.loc[idx["OR", pd.Timestamp("2020-06-26") : pd.Timestamp("2020-06-28")], 'total'] = 3296
-
 
     #https://twitter.com/OHdeptofhealth/status/1278768987292209154
     data.loc[idx["OH", pd.Timestamp("2020-07-01")], :] = 0
