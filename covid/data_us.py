@@ -49,7 +49,7 @@ def process_covidtracking_data(data: pd.DataFrame, run_date: pd.Timestamp):
     # Huge outlier in NJ causing sampling issues.
     data.loc[idx["NJ", pd.Timestamp("2020-05-11")], :] = 0
     # Same tests and positives, nulling out
-    data.loc[idx["NJ", pd.Timestamp("2020-07-26")], :] = 0
+    data.loc[idx["NJ", pd.Timestamp("2020-07-25")], :] = 0
 
     # Huge outlier in CA causing sampling issues.
     data.loc[idx["CA", pd.Timestamp("2020-04-22")], :] = 0
