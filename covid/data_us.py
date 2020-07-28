@@ -100,6 +100,14 @@ def process_covidtracking_data(data: pd.DataFrame, run_date: pd.Timestamp):
         :,
     ] = 0
 
+    # Zero out any rows where positive tests equal or exceed total reported tests
+    # Do not act on Wyoming as they report positive==total most days
+    filtering_date = pd.Timestamp('2020-07-27')
+    zero_filter = (data.positive >= data.total) & \
+        (data.index.get_level_values('date') >= filtering_date) & \
+        (~data.index.get_level_values('region').isin(['WY']))
+    data.loc[zero_filter, :] = 0
+
     # At the real time of `run_date`, the data for `run_date` is not yet available!
     # Cutting it away is important for backtesting!
     return data.loc[idx[:, :(run_date - pd.DateOffset(1))], ["positive", "total"]]
