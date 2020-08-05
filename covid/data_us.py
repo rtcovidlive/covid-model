@@ -87,6 +87,8 @@ def process_covidtracking_data(data: pd.DataFrame, run_date: pd.Timestamp):
     data.loc[idx["CT", pd.Timestamp("2020-07-17")], :] = 0
     data.loc[idx["CT", pd.Timestamp("2020-07-21")], :] = 0
 
+    data.loc[idx["DC", pd.Timestamp("2020-08-04")], :] = 0
+
     # Outlier dates in PA
     data.loc[
         idx[
