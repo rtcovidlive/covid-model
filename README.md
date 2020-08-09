@@ -13,7 +13,8 @@ However, we encourage you to apply and improve the model for your country!
 ## Contributing
 We are open to PRs that address aspects of the code or model that generalize across borders.
 For example on the topics of:
-+ docstrings, testing
++ docstrings (NumPy-style), 
++ testing
 + robustness against data outliers
 + computational performance
 + model insight
