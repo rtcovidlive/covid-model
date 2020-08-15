@@ -106,6 +106,8 @@ def process_covidtracking_data(data: pd.DataFrame, run_date: pd.Timestamp):
     data.loc[idx["TX", pd.Timestamp("2020-08-08")], :] = 0
     data.loc[idx["TX", pd.Timestamp("2020-08-11")], :] = 0
 
+    data.loc[idx["DE", pd.Timestamp("2020-08-14")], :] = 0
+
     # Zero out any rows where positive tests equal or exceed total reported tests
     # Do not act on Wyoming as they report positive==total most days
     filtering_date = pd.Timestamp('2020-07-27')
