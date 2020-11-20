@@ -117,7 +117,7 @@ def process_covidtracking_data(data: pd.DataFrame, run_date: pd.Timestamp):
     filtering_date = pd.Timestamp('2020-07-27')
     zero_filter = (data.positive >= data.total) & \
         (data.index.get_level_values('date') >= filtering_date) & \
-        (~data.index.get_level_values('region').isin(['WY']))
+        (~data.index.get_level_values('region').isin(['WY', 'MS']))
     data.loc[zero_filter, :] = 0
 
     # At the real time of `run_date`, the data for `run_date` is not yet available!
