@@ -28,7 +28,7 @@ or with the respective BibTeX entry:
 ```
 @misc{rtlive2020,
   author = {Systrom, Kevin and Vladek, Thomas and Krieger, Mike},
-  title = {Project Title},
+  title = {Rt.live},
   year = {2020},
   publisher = {GitHub},
   journal = {GitHub repository},
