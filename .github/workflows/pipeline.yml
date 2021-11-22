@@ -9,16 +9,18 @@ jobs:
       matrix:
         python-version: [3.7]
     steps:
-    - uses: actions/checkout@v2
-    - name: Install miniconda
-      uses: goanpeca/setup-miniconda@v1
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Install Miniconda
+      uses: conda-incubator/setup-miniconda@v2
       with:
-        auto-update-conda: true
+        miniconda-version: "latest"
+        auto-activate-base: true
         activate-environment: covid-test
         python-version: ${{ matrix.python-version }}
         channels: conda-forge
         channel-priority: strict
-    - name: Install dependencies
+    - name: Install Dependencies
       shell: bash -l {0}
       run: |
         conda install --file requirements.txt
