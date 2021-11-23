@@ -107,6 +107,12 @@ def process_covidtracking_data(data: pd.DataFrame, run_date: pd.Timestamp):
     data.loc[idx["TX", pd.Timestamp("2020-08-11")], :] = 0
 
     data.loc[idx["DE", pd.Timestamp("2020-08-14")], :] = 0
+    
+    # MA Aug. 19 report includes 565 "probable" cases for the entire week plus 262 positive tests for the day.
+    # Spread out the 565 evenly across the whole week
+    data.loc[idx["MA", pd.Timestamp("2020-08-19")],:] -= 565
+    data.loc[idx["MA", pd.Timestamp("2020-08-13"):pd.Timestamp("2020-08-19")],:] += 80
+    data.loc[idx["MA", pd.Timestamp("2020-08-15"):pd.Timestamp("2020-08-19")],:] += 1
 
     data.loc[idx["SD", pd.Timestamp("2020-08-26")], :] = 0
 
